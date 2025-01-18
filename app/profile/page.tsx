@@ -1,5 +1,5 @@
 // app/profile/page.tsx
-"use client"; // Ensure that this page is rendered on the client side
+"use client"; // Ensure this is a client-side component
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -13,7 +13,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch("/api/users/me"); // The endpoint for current user info
+        const response = await fetch("/api/users/me");
         if (!response.ok) throw new Error("Failed to fetch user data");
         const data = await response.json();
         setUser(data);
@@ -41,7 +41,7 @@ export default function ProfilePage() {
       <div className="bg-white p-6 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold mb-4">User Details</h2>
         <div className="mb-4">
-          <strong>Name:</strong> {user.name}
+          <strong>Name:</strong> {user.name || "N/A"}
         </div>
         <div className="mb-4">
           <strong>Email:</strong> {user.email}

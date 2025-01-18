@@ -1,3 +1,4 @@
+// lib/db/users.ts
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 
@@ -26,7 +27,13 @@ export async function getUserCount() {
 export async function getUser(id: string) {
   const client = await clientPromise;
   const db = client.db();
-  return await db.collection("users").findOne({ _id: id });
+  return await db.collection("users").findOne({ _id: new ObjectId(id) });
+}
+
+export async function getUserById(id: string) {
+  const client = await clientPromise;
+  const db = client.db();
+  return await db.collection("users").findOne({ _id: new ObjectId(id) });
 }
 
 export async function getAllUsers() {
@@ -47,7 +54,7 @@ export async function updateUserRole(userId: string, role: string) {
   const client = await clientPromise;
   const db = client.db();
   return await db.collection("users").updateOne(
-    { _id: userId },
+    { _id: new ObjectId(userId) },
     { $set: { role } }
   );
 }

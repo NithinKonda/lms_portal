@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getUserById } from "@/lib/db/users"; // You'll need to create this function in your db utility
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
