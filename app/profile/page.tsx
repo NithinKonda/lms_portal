@@ -1,4 +1,3 @@
-// app/profile/page.tsx
 "use client"; // Ensure this is a client-side component
 
 import { useEffect, useState } from "react";
@@ -8,17 +7,23 @@ export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [enrolledCourses, setEnrolledCourses] = useState<any[]>([]);
 
-  // Fetch user data on component mount
+  // Fetch user data and enrolled courses on component mount
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch("/api/users/me");
-        if (!response.ok) throw new Error("Failed to fetch user data");
-        const data = await response.json();
-        setUser(data);
+        const userResponse = await fetch("/api/users/me");
+        if (!userResponse.ok) throw new Error("Failed to fetch user data");
+        const userData = await userResponse.json();
+        setUser(userData);
+
+        const coursesResponse = await fetch("/api/users/me/courses");
+        if (!coursesResponse.ok) throw new Error("Failed to fetch courses");
+        const coursesData = await coursesResponse.json();
+        setEnrolledCourses(coursesData);
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
@@ -38,7 +43,7 @@ export default function ProfilePage() {
   return (
     <div className="container mx-auto px-4 py-16">
       <h1 className="text-4xl font-semibold text-center mb-8">Your Profile</h1>
-      <div className="bg-white p-6 rounded-lg shadow-lg">
+      <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
         <h2 className="text-2xl font-bold mb-4">User Details</h2>
         <div className="mb-4">
           <strong>Name:</strong> {user.name || "N/A"}
@@ -49,7 +54,23 @@ export default function ProfilePage() {
         <div className="mb-4">
           <strong>Role:</strong> {user.role}
         </div>
-        {/* Add any additional details you want to display */}
+      </div>
+
+      {/* Display Enrolled Courses */}
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <h2 className="text-2xl font-bold mb-4">Enrolled Courses</h2>
+        {enrolledCourses.length > 0 ? (
+          <ul className="list-disc pl-6">
+            {enrolledCourses.map((course, index) => (
+              <li key={index} className="mb-2">
+                <strong>Course ID:</strong> {course.courseId}
+                {/* Add additional details like progress if needed */}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div>No courses enrolled</div>
+        )}
       </div>
     </div>
   );
