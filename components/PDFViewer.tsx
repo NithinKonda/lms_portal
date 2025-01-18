@@ -88,7 +88,7 @@ export default function PDFViewer({
       <Page
         pageNumber={pageNumber}
         width={Math.min(800, window.innerWidth - 64)}
-        className="shadow-lg"
+        className="shadow-lg text-center items-center"
         renderTextLayer={showParsedText}  // Toggle text layer visibility
         renderAnnotationLayer={showParsedText}  // Toggle annotations visibility
       />

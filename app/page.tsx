@@ -30,8 +30,10 @@ export default async function Home() {
           <p className="text-xl text-gray-800 max-w-2xl mx-auto font-light">
             Your centralized platform for team learning and development
           </p>
+          <p className="text-xl text-gray-800 max-w-2xl mx-auto font-light">
+              Discover a world of learning opportunities! Enroll in courses and enhance your skills.
+            </p>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
           {[{
             title: "Courses Management",
@@ -59,7 +61,7 @@ export default async function Home() {
               <div
                 key={item.title}
                 className="bg-white/10 backdrop-blur-lg rounded-xl shadow-xl p-6 transform transition-all duration-300 hover:scale-105 hover:bg-white/20 animate-fade-in-up"
-                style={{ animationDelay: `${index * 150}ms` }}
+                style={{ animationDelay: `${index * 150}ms `}}
               >
                 <h2 className="text-2xl font-bold text-gray mb-4">{item.title}</h2>
                 <p className="text-gray-900 mb-6">{item.description}</p>
