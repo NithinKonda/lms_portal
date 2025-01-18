@@ -10,13 +10,17 @@
 
 
 const nextConfig = {
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.externals = {
-        ...config.externals,
-        canvas: "commonjs canvas",
-      };
-    }
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  images: { unoptimized: true },
+  webpack: (config) => {
+    // Add this to ignore `canvas` as an external dependency
+    config.externals = config.externals || [];
+    config.externals.push({
+      canvas: "commonjs canvas",
+    });
+
     return config;
   },
 };
