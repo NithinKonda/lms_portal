@@ -33,10 +33,10 @@ export default async function UsersPage() {
               Manage users and track their learning progress
             </p>
           </div>
-          <Button className="mt-4 md:mt-0 bg-indigo-600 hover:bg-indigo-700 text-white transition-colors duration-300">
+          {/* <Button className="mt-4 md:mt-0 bg-indigo-600 hover:bg-indigo-700 text-white transition-colors duration-300">
             <UserPlus className="h-5 w-5 mr-2" />
             Add New User
-          </Button>
+          </Button> */}
         </div>
 
         <div className="bg-white rounded-lg shadow-xl overflow-hidden animate-fade-in-up">
