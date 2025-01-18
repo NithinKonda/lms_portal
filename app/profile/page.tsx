@@ -13,7 +13,7 @@ interface User {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [enrolledCourses, setEnrolledCourses] = useState<any[]>([]);
 
