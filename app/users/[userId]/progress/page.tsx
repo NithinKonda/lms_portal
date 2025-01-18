@@ -18,7 +18,6 @@ interface CourseProgress {
   courseId: string;
   completedMaterials: string[];
   lastAccessedAt: Date;
-  completedAt?: Date;
   course: {
     _id: string;
     title: string;
@@ -106,7 +105,7 @@ export default function UserProgressPage({ params }: { params: { userId: string 
                       {new Date(p.lastAccessedAt).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
-                      {p.completedAt ? (
+                      {p.completedMaterials ? (
                         <div className="flex items-center gap-2 text-green-600">
                           <CheckCircle className="h-4 w-4" />
                           Completed
