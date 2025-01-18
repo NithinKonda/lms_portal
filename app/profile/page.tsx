@@ -1,4 +1,4 @@
-"use client"; // Ensure this is a client-side component
+"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -17,7 +17,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [enrolledCourses, setEnrolledCourses] = useState<any[]>([]);
 
-  // Fetch user data and enrolled courses on component mount
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -64,7 +64,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Display Enrolled Courses */}
+
       <div className="bg-white p-6 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold mb-4">No of Enrolled Courses: {enrolledCourses.length}</h2>
         {enrolledCourses.length > 0 ? (
@@ -72,7 +72,7 @@ export default function ProfilePage() {
             {enrolledCourses.map((course, index) => (
               <li key={index} className="mb-2">
                 <strong>Course ID:</strong> {course.courseId}
-                {/* Add additional details like progress if needed */}
+
               </li>
             ))}
           </ul>
