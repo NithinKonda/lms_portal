@@ -1,12 +1,12 @@
 "use client"
-
 import { useState, useEffect } from "react"
 import { Document, Page, pdfjs } from "react-pdf"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { ChevronLeft, ChevronRight, Check, Loader2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Check, Loader2, Type } from 'lucide-react'
 import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
+import { Switch } from "@/components/ui/switch"
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`
 
@@ -30,7 +30,7 @@ export default function PDFViewer({
   const [pageNumber, setPageNumber] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const [loadingProgress, setLoadingProgress] = useState(0)
-
+  const [showParsedText, setShowParsedText] = useState(true)  // New state for toggle
   const currentMaterial = materials[currentMaterialIndex]
 
   useEffect(() => {
@@ -62,7 +62,6 @@ export default function PDFViewer({
           lastAccessedAt: new Date(),
         }),
       })
-
       if (response.ok && currentMaterialIndex < materials.length - 1) {
         setCurrentMaterialIndex(currentMaterialIndex + 1)
       }
@@ -70,6 +69,31 @@ export default function PDFViewer({
       setIsLoading(false)
     }
   }
+
+  const renderPDFViewer = () => (
+    <Document
+      file={currentMaterial.pdfUrl}
+      onLoadSuccess={onDocumentLoadSuccess}
+      loading={
+        <div className="flex flex-col items-center justify-center h-full">
+          <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+          <Progress
+            value={loadingProgress}
+            className="w-48 mt-4"
+          />
+        </div>
+      }
+      className="flex flex-col items-center"
+    >
+      <Page
+        pageNumber={pageNumber}
+        width={Math.min(800, window.innerWidth - 64)}
+        className="shadow-lg"
+        renderTextLayer={showParsedText}  // Toggle text layer visibility
+        renderAnnotationLayer={showParsedText}  // Toggle annotations visibility
+      />
+    </Document>
+  )
 
   return (
     <div className="flex flex-col items-center space-y-6">
@@ -81,9 +105,19 @@ export default function PDFViewer({
         <Card className="overflow-hidden">
           <CardContent className="p-0">
             <div className="bg-gradient-to-r from-purple-100 to-indigo-100 p-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                {currentMaterial.title}
-              </h3>
+              <div className="flex justify-between items-center mb-1">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {currentMaterial.title}
+                </h3>
+                <div className="flex items-center gap-2">
+                  <Type className="h-4 w-4" />
+                  <span className="text-sm text-gray-600">Show parsed text</span>
+                  <Switch
+                    checked={showParsedText}
+                    onCheckedChange={setShowParsedText}
+                  />
+                </div>
+              </div>
               <Progress value={(pageNumber / (numPages || 1)) * 100} />
             </div>
             <AnimatePresence mode="wait">
@@ -95,32 +129,12 @@ export default function PDFViewer({
                 transition={{ duration: 0.3 }}
                 className="bg-gray-50 p-6 flex justify-center min-h-[600px]"
               >
-                <Document
-                  file={currentMaterial.pdfUrl}
-                  onLoadSuccess={onDocumentLoadSuccess}
-                  loading={
-                    <div className="flex flex-col items-center justify-center h-full">
-                      <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
-                      <Progress
-                        value={loadingProgress}
-                        className="w-48 mt-4"
-                      />
-                    </div>
-                  }
-                  className="flex justify-center"
-                >
-                  <Page
-                    pageNumber={pageNumber}
-                    width={Math.min(800, window.innerWidth - 64)}
-                    className="shadow-lg"
-                  />
-                </Document>
+                {renderPDFViewer()}
               </motion.div>
             </AnimatePresence>
           </CardContent>
         </Card>
       </motion.div>
-
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -136,11 +150,9 @@ export default function PDFViewer({
           <ChevronLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
           Previous
         </Button>
-
         <span className="text-sm text-gray-600 font-medium">
           {pageNumber} / {numPages || "?"}
         </span>
-
         <Button
           onClick={() => setPageNumber(Math.min(numPages!, pageNumber + 1))}
           disabled={!numPages || pageNumber >= numPages}
@@ -151,7 +163,6 @@ export default function PDFViewer({
           <ChevronRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
         </Button>
       </motion.div>
-
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -193,4 +204,3 @@ export default function PDFViewer({
     </div>
   )
 }
-

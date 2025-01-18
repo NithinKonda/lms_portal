@@ -45,20 +45,6 @@ export default function CoursePageClient({
           </div>
 
           <div className="flex flex-col lg:flex-row">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 }}
-              className="lg:w-3/4 p-8"
-            >
-              <div className="bg-white rounded-xl shadow-lg">
-                <PDFViewer
-                  courseId={courseId}
-                  materials={course.materials}
-                  progress={progress}
-                />
-              </div>
-            </motion.div>
 
             <motion.div
               initial={{ opacity: 0, x: 20 }}
@@ -78,6 +64,20 @@ export default function CoursePageClient({
             </motion.div>
           </div>
         </motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+              className="lg:w-3/4 p-8"
+            >
+              <div className="bg-white rounded-xl shadow-lg">
+                <PDFViewer
+                  courseId={courseId}
+                  materials={course.materials}
+                  progress={progress}
+                />
+              </div>
+            </motion.div>
       </main>
     </div>
   );
