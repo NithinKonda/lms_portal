@@ -3,6 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+
+
+interface User {
+  name:String,
+  email:String,
+  role:String
+}
+
 export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
