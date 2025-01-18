@@ -58,7 +58,7 @@ export default function ProfilePage() {
 
       {/* Display Enrolled Courses */}
       <div className="bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold mb-4">Enrolled Courses</h2>
+        <h2 className="text-2xl font-bold mb-4">No of Enrolled Courses: {enrolledCourses.length}</h2>
         {enrolledCourses.length > 0 ? (
           <ul className="list-disc pl-6">
             {enrolledCourses.map((course, index) => (
