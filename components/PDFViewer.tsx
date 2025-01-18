@@ -1,102 +1,196 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Document, Page, pdfjs } from "react-pdf";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react"
+import { Document, Page, pdfjs } from "react-pdf"
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import { ChevronLeft, ChevronRight, Check, Loader2 } from 'lucide-react'
+import { motion, AnimatePresence } from "framer-motion"
+import { Card, CardContent } from "@/components/ui/card"
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`
 
 interface PDFViewerProps {
-  courseId: string;
+  courseId: string
   materials: {
-    title: string;
-    pdfUrl: string;
-    order: number;
-  }[];
-  progress: any;
+    title: string
+    pdfUrl: string
+    order: number
+  }[]
+  progress: any
 }
 
-export default function PDFViewer({ courseId, materials, progress }: PDFViewerProps) {
-  const [currentMaterialIndex, setCurrentMaterialIndex] = useState(0);
-  const [numPages, setNumPages] = useState<number>();
-  const [pageNumber, setPageNumber] = useState(1);
+export default function PDFViewer({
+  courseId,
+  materials,
+  progress,
+}: PDFViewerProps) {
+  const [currentMaterialIndex, setCurrentMaterialIndex] = useState(0)
+  const [numPages, setNumPages] = useState<number>()
+  const [pageNumber, setPageNumber] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
+  const [loadingProgress, setLoadingProgress] = useState(0)
 
-  const currentMaterial = materials[currentMaterialIndex];
+  const currentMaterial = materials[currentMaterialIndex]
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setLoadingProgress((prev) => (prev >= 100 ? 0 : prev + 10))
+    }, 500)
+    return () => clearInterval(timer)
+  }, [])
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
-    setNumPages(numPages);
-    setPageNumber(1);
+    setNumPages(numPages)
+    setPageNumber(1)
+    setIsLoading(false)
   }
 
   async function markAsCompleted() {
-    const response = await fetch(`/api/courses/${courseId}/progress`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        completedMaterials: [
-          ...(progress?.completedMaterials || []),
-          currentMaterial.pdfUrl,
-        ],
-        lastAccessedAt: new Date(),
-      }),
-    });
+    setIsLoading(true)
+    try {
+      const response = await fetch(`/api/courses/${courseId}/progress`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          completedMaterials: [
+            ...(progress?.completedMaterials || []),
+            currentMaterial.pdfUrl,
+          ],
+          lastAccessedAt: new Date(),
+        }),
+      })
 
-    if (response.ok && currentMaterialIndex < materials.length - 1) {
-      setCurrentMaterialIndex(currentMaterialIndex + 1);
+      if (response.ok && currentMaterialIndex < materials.length - 1) {
+        setCurrentMaterialIndex(currentMaterialIndex + 1)
+      }
+    } finally {
+      setIsLoading(false)
     }
   }
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="w-full bg-gray-100 rounded-lg p-4 mb-4">
-        <Document
-          file={currentMaterial.pdfUrl}
-          onLoadSuccess={onDocumentLoadSuccess}
-          className="flex justify-center"
-        >
-          <Page
-            pageNumber={pageNumber}
-            width={Math.min(800, window.innerWidth - 64)}
-          />
-        </Document>
-      </div>
+    <div className="flex flex-col items-center space-y-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full"
+      >
+        <Card className="overflow-hidden">
+          <CardContent className="p-0">
+            <div className="bg-gradient-to-r from-purple-100 to-indigo-100 p-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                {currentMaterial.title}
+              </h3>
+              <Progress value={(pageNumber / (numPages || 1)) * 100} />
+            </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentMaterial.pdfUrl}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="bg-gray-50 p-6 flex justify-center min-h-[600px]"
+              >
+                <Document
+                  file={currentMaterial.pdfUrl}
+                  onLoadSuccess={onDocumentLoadSuccess}
+                  loading={
+                    <div className="flex flex-col items-center justify-center h-full">
+                      <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+                      <Progress
+                        value={loadingProgress}
+                        className="w-48 mt-4"
+                      />
+                    </div>
+                  }
+                  className="flex justify-center"
+                >
+                  <Page
+                    pageNumber={pageNumber}
+                    width={Math.min(800, window.innerWidth - 64)}
+                    className="shadow-lg"
+                  />
+                </Document>
+              </motion.div>
+            </AnimatePresence>
+          </CardContent>
+        </Card>
+      </motion.div>
 
-      <div className="flex items-center gap-4 mt-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="flex items-center gap-4 w-full max-w-md mx-auto"
+      >
         <Button
           onClick={() => setPageNumber(Math.max(1, pageNumber - 1))}
           disabled={pageNumber <= 1}
+          variant="outline"
+          className="flex-1 group transition-all duration-200 hover:scale-105"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
           Previous
         </Button>
 
-        <span className="text-sm text-gray-600">
-          Page {pageNumber} of {numPages}
+        <span className="text-sm text-gray-600 font-medium">
+          {pageNumber} / {numPages || "?"}
         </span>
 
         <Button
           onClick={() => setPageNumber(Math.min(numPages!, pageNumber + 1))}
-          disabled={pageNumber >= numPages!}
+          disabled={!numPages || pageNumber >= numPages}
+          variant="outline"
+          className="flex-1 group transition-all duration-200 hover:scale-105"
         >
           Next
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
         </Button>
-      </div>
+      </motion.div>
 
-      <div className="mt-8 w-full">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="w-full max-w-md mx-auto"
+      >
         <Button
-          className="w-full"
+          className="w-full group relative overflow-hidden transition-all duration-200 hover:scale-105"
           onClick={markAsCompleted}
-          disabled={progress?.completedMaterials?.includes(currentMaterial.pdfUrl)}
+          disabled={
+            isLoading || progress?.completedMaterials?.includes(currentMaterial.pdfUrl)
+          }
+          variant={
+            progress?.completedMaterials?.includes(currentMaterial.pdfUrl)
+              ? "outline"
+              : "default"
+          }
         >
-          {progress?.completedMaterials?.includes(currentMaterial.pdfUrl)
-            ? "Completed"
-            : "Mark as Completed"}
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : progress?.completedMaterials?.includes(currentMaterial.pdfUrl) ? (
+            <>
+              <Check className="h-4 w-4 mr-2 text-green-500" />
+              Completed
+            </>
+          ) : (
+            <>
+              Mark as Completed
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-0 group-hover:opacity-10 transition-opacity"
+                initial={false}
+                animate={{ opacity: 0 }}
+                whileHover={{ opacity: 0.1 }}
+              />
+            </>
+          )}
         </Button>
-      </div>
+      </motion.div>
     </div>
-  );
+  )
 }
+

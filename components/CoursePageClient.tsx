@@ -1,33 +1,21 @@
-"use client"
-import { getServerSession } from "next-auth"
-import { authOptions } from "../../api/auth/[...nextauth]/route"
-import { redirect } from "next/navigation"
-import { getCourse, getCourseProgress } from "@/lib/db/courses"
-import { Button } from "@/components/ui/button"
-import PDFViewer from "@/components/PDFViewer"
-import CourseProgress from "@/components/CourseProgress"
-import { motion } from "framer-motion"
-import { GraduationCap, BookOpen } from 'lucide-react'
+"use client"; // Add the client directive here
 
+import { motion } from "framer-motion";
+import { GraduationCap, BookOpen } from "lucide-react";
+import PDFViewer from "@/components/PDFViewer";
+import CourseProgress from "@/components/CourseProgress";
 
-export default async function CoursePage({
-  params,
-}: {
-  params: { courseId: string }
-}) {
-  const session = await getServerSession(authOptions)
+interface CoursePageClientProps {
+  course: any;
+  progress: any;
+  courseId: string;
+}
 
-  if (!session) {
-    redirect("/auth/signin")
-  }
-
-  const course = await getCourse(params.courseId)
-  const progress = await getCourseProgress(session.user.id, params.courseId)
-
-  if (!course) {
-    redirect("/courses")
-  }
-
+export default function CoursePageClient({
+  course,
+  progress,
+  courseId,
+}: CoursePageClientProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       <main className="container mx-auto px-4 py-8">
@@ -65,7 +53,7 @@ export default async function CoursePage({
             >
               <div className="bg-white rounded-xl shadow-lg">
                 <PDFViewer
-                  courseId={params.courseId}
+                  courseId={courseId}
                   materials={course.materials}
                   progress={progress}
                 />
@@ -92,5 +80,5 @@ export default async function CoursePage({
         </motion.div>
       </main>
     </div>
-  )
+  );
 }
